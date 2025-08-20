@@ -1,36 +1,121 @@
-/* Aqui está TODO o CSS que estava na tag <style> */
 :root{
-  --bg: #0b0f14;
-  --panel: rgba(255,255,255,0.06);
-  --accent: #7c5cff;
-  --accent-2: #4ad1ff;
-  --text: #e8eef7;
-  --subtext: #9fb2c7;
-  --danger: #ff4d6d;
-  --success: #18d17b;
-  --shadow: 0 20px 60px rgba(0,0,0,.35);
-  --radius: 22px;
-}
-.light{
-  --bg: #f6f8fc;
-  --panel: rgba(0,0,0,0.06);
-  --accent: #5b4bff;
-  --accent-2: #00a3ff;
-  --text: #10131a;
-  --subtext: #5b6878;
-  --danger: #e01944;
-  --success: #0fa166;
-  --shadow: 0 20px 60px rgba(14,21,37,.18);
+  --bg: #0f1226;
+  --panel: #161a36;
+  --key: #21264d;
+  --key-hover: #2a3163;
+  --op: #2f6df6;
+  --op-hover: #3a79ff;
+  --eq: #24c08b;
+  --eq-hover: #2ad19a;
+  --txt: #e8ebff;
+  --muted: #aab0d6;
+  --shadow: 0 20px 40px rgba(0,0,0,.35);
+  --radius: 18px;
 }
 
-* { box-sizing: border-box; }
-html, body { height: 100%; }
+*{ box-sizing: border-box; }
+html,body{ height:100%; }
 body{
-  margin:0; background: radial-gradient(1200px 800px at 70% -10%, rgba(124,92,255,.25), transparent 60%),
-             radial-gradient(900px 600px at 10% 110%, rgba(74,209,255,.25), transparent 60%), var(--bg);
-  color: var(--text); font: 500 16px/1.5 "Inter", system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-  display:grid; place-items:center; padding:24px;
+  margin:0;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif;
+  background: radial-gradient(1000px 600px at 20% -10%, #273069 0%, transparent 60%),
+              radial-gradient(900px 700px at 120% 120%, #0a5c7a 0%, transparent 60%),
+              var(--bg);
+  color: var(--txt);
+  display:grid;
+  place-items:center;
+  padding: 24px;
 }
 
-/* ... (restante do CSS é exatamente igual ao que estava no código original, mantido) */
+.wrap{
+  width: min(92vw, 420px);
+}
 
+.calc{
+  background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)) , var(--panel);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.display{
+  padding: 18px 18px 6px 18px;
+  text-align: right;
+  min-height: 108px;
+  display:flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.display .prev{
+  min-height: 24px;
+  color: var(--muted);
+  font-size: 0.95rem;
+  letter-spacing: .3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.display .curr{
+  font-size: clamp(2rem, 6vw + 1rem, 3.2rem);
+  font-weight: 800;
+  line-height: 1.15;
+  word-break: break-all;
+}
+
+.keys{
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  padding: 14px;
+}
+
+.key{
+  appearance: none;
+  border: 0;
+  border-radius: 14px;
+  padding: 16px;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--txt);
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)), var(--key);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+  cursor: pointer;
+  transition: transform .05s ease, background .15s ease, box-shadow .15s ease;
+}
+.key:active{
+  transform: translateY(1px) scale(.99);
+}
+.key:hover{ background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03)), var(--key-hover); }
+
+.key-op{
+  background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04)), var(--op);
+}
+.key-op:hover{ background: linear-gradient(180deg, rgba(255,255,255,.13), rgba(255,255,255,.05)), var(--op-hover); }
+
+.key-eq{
+  background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04)), var(--eq);
+}
+.key-eq:hover{ background: linear-gradient(180deg, rgba(255,255,255,.13), rgba(255,255,255,.05)), var(--eq-hover); }
+
+.key-func{
+  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03)), #343a73;
+}
+.key-func:hover{ background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04)), #3f4592; }
+
+.key[data-num="."]{ font-variant-numeric: tabular-nums; }
+
+.key:focus{ outline: 2px solid rgba(255,255,255,.35); outline-offset: 2px; }
+
+.help{
+  padding: 8px 14px 16px;
+  color: var(--muted);
+  font-size: .9rem;
+  text-align: center;
+}
+
+/* Responsividade extra */
+@media (max-width: 360px){
+  .key{ padding: 14px; font-size: 1rem; }
+  .display{ min-height: 96px; }
+}
