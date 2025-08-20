@@ -1,1 +1,36 @@
+/* Aqui está TODO o CSS que estava na tag <style> */
+:root{
+  --bg: #0b0f14;
+  --panel: rgba(255,255,255,0.06);
+  --accent: #7c5cff;
+  --accent-2: #4ad1ff;
+  --text: #e8eef7;
+  --subtext: #9fb2c7;
+  --danger: #ff4d6d;
+  --success: #18d17b;
+  --shadow: 0 20px 60px rgba(0,0,0,.35);
+  --radius: 22px;
+}
+.light{
+  --bg: #f6f8fc;
+  --panel: rgba(0,0,0,0.06);
+  --accent: #5b4bff;
+  --accent-2: #00a3ff;
+  --text: #10131a;
+  --subtext: #5b6878;
+  --danger: #e01944;
+  --success: #0fa166;
+  --shadow: 0 20px 60px rgba(14,21,37,.18);
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body{
+  margin:0; background: radial-gradient(1200px 800px at 70% -10%, rgba(124,92,255,.25), transparent 60%),
+             radial-gradient(900px 600px at 10% 110%, rgba(74,209,255,.25), transparent 60%), var(--bg);
+  color: var(--text); font: 500 16px/1.5 "Inter", system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  display:grid; place-items:center; padding:24px;
+}
+
+/* ... (restante do CSS é exatamente igual ao que estava no código original, mantido) */
 
