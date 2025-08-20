@@ -1,102 +1,88 @@
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+:root {
+  --bg: #ffffff;
+  --btn: #e8f5e9;
+  --btn-hover: #c8e6c9;
+  --accent: #4caf50;
+  --text: #212121;
 }
 
 body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: var(--bg);
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   height: 100vh;
-  background: #1c1c1c;
-  font-family: Arial, Helvetica, sans-serif;
 }
 
 .calculator {
-  width: 100%;
-  max-width: 360px;
-  background: #000;
-  border-radius: 20px;
+  width: 320px;
+  background: white;
+  border-radius: 16px;
   overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
   display: flex;
   flex-direction: column;
-  box-shadow: 0 10px 30px rgba(0,0,0,.7);
 }
 
 .display {
-  background: #000;
-  color: #fff;
+  background: var(--accent);
+  color: white;
   padding: 20px;
   text-align: right;
-  word-wrap: break-word;
-  min-height: 100px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
 }
 
-.previous-operand {
-  font-size: 1.2rem;
-  color: #888;
+.history {
+  font-size: 14px;
+  opacity: 0.8;
+  min-height: 18px;
 }
 
-.current-operand {
-  font-size: 2.5rem;
+.result {
+  font-size: 32px;
   font-weight: bold;
 }
 
-.buttons {
+.buttons, .extras {
   display: grid;
+  gap: 8px;
+  padding: 12px;
+}
+
+.buttons {
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  padding: 15px;
+}
+
+.extras {
+  grid-template-columns: repeat(4, 1fr);
 }
 
 button {
-  font-size: 1.4rem;
+  padding: 18px;
   border: none;
-  border-radius: 50%;
-  height: 70px;
-  width: 70px;
-  margin: auto;
+  border-radius: 12px;
+  background: var(--btn);
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--text);
   cursor: pointer;
-  color: #fff;
-  background: #333;
   transition: background 0.2s;
 }
 
 button:hover {
-  background: #444;
+  background: var(--btn-hover);
 }
 
-button:active {
-  background: #666;
+button[data-operator], button[data-action="equals"], button[data-func] {
+  background: var(--accent);
+  color: white;
 }
 
-.op {
-  background: #ff9500;
+button[data-operator]:hover, button[data-action="equals"]:hover, button[data-func]:hover {
+  background: #388e3c;
 }
 
-.op:hover {
-  background: #ffa733;
-}
-
-.eq {
-  background: #34c759;
-}
-
-.eq:hover {
-  background: #4cd964;
-}
-
-.func {
-  background: #a6a6a6;
-  color: #000;
-}
-
-.span-2 {
+.zero {
   grid-column: span 2;
-  width: auto;
-  border-radius: 35px;
 }
