@@ -1,122 +1,145 @@
 const resultEl = document.getElementById("result");
 const historyEl = document.getElementById("history");
+const keys = document.querySelector(".keys");
 
-let current = "0";
-let expression = "";
-let justEvaluated = false;
+let expression = ""; // expressão em caracteres amigáveis (÷ × −)
+let lastResult = null;
 
 function updateDisplay() {
-  resultEl.textContent = current;
-  historyEl.textContent = expression;
+  resultEl.value = expression.length ? expression : "0";
 }
 
-function appendNumber(num) {
-  if (justEvaluated) {
-    current = "0";
-    expression = "";
-    justEvaluated = false;
-  }
-  if (num === "." && current.includes(".")) return;
-  if (current === "0" && num !== ".") {
-    current = num;
+function appendValue(v) {
+  // Evita dois operadores seguidos (exceto trocar operador)
+  const ops = ["+", "−", "×", "÷"];
+  const last = expression.slice(-1);
+  if (ops.includes(v) && ops.includes(last)) {
+    expression = expression.slice(0, -1) + v;
+  } else if (v === "." || v === ",") {
+    // vírgula/decimal: evita dois pontos no número atual
+    const tail = getCurrentNumber();
+    if (!tail.includes(".")) {
+      expression += ".";
+    }
   } else {
-    current += num;
+    expression += v;
   }
   updateDisplay();
 }
 
-function setOperator(op) {
-  if (justEvaluated) {
-    expression = current;
-    justEvaluated = false;
-  } else {
-    expression += current;
-  }
-  expression += " " + op + " ";
-  current = "0";
-  updateDisplay();
+function getCurrentNumber() {
+  const parts = expression.split(/([+\-−×÷])/);
+  return parts[parts.length - 1] || "";
 }
 
 function clearAll() {
-  current = "0";
   expression = "";
-  justEvaluated = false;
+  updateDisplay();
+  historyEl.textContent = "";
+}
+
+function delOne() {
+  expression = expression.slice(0, -1);
   updateDisplay();
 }
 
-function deleteOne() {
-  if (justEvaluated) return;
-  if (current.length <= 1) current = "0";
-  else current = current.slice(0, -1);
-  updateDisplay();
-}
-
-function evaluate() {
-  try {
-    let exp = expression + current;
-    let res = Function("return " + exp)();
-    expression = exp + " =";
-    current = String(res);
-    justEvaluated = true;
-    updateDisplay();
-  } catch {
-    current = "Erro";
-    expression = "";
-    justEvaluated = true;
-    updateDisplay();
+function invertSign() {
+  // inverte o número atual
+  const num = getCurrentNumber();
+  if (!num) return;
+  const start = expression.length - num.length;
+  if (num.startsWith("−")) {
+    expression = expression.slice(0, start) + num.slice(1);
+  } else if (num.startsWith("-")) {
+    expression = expression.slice(0, start) + num.slice(1);
+  } else {
+    expression = expression.slice(0, start) + "−" + num;
   }
+  updateDisplay();
 }
 
 function percent() {
-  current = String(parseFloat(current) / 100);
+  // transforma o número atual em percentual (divide por 100)
+  const num = getCurrentNumber();
+  if (!num) return;
+  const start = expression.length - num.length;
+  const value = safeToNumber(num);
+  if (value == null) return;
+  const p = value / 100;
+  expression = expression.slice(0, start) + String(p);
   updateDisplay();
 }
 
-function toggleSign() {
-  current = current.startsWith("-") ? current.slice(1) : "-" + current;
-  updateDisplay();
+function normalizeForEval(exp) {
+  return exp
+    .replace(/÷/g, "/")
+    .replace(/×/g, "*")
+    .replace(/−/g, "-");
 }
 
-function sqrt() {
-  current = String(Math.sqrt(parseFloat(current)));
-  updateDisplay();
+function safeToNumber(str) {
+  const normalized = normalizeForEval(str);
+  if (!/^[-]?\d+(\.\d+)?$/.test(normalized)) return null;
+  return parseFloat(normalized);
 }
 
-function pow() {
-  current = String(Math.pow(parseFloat(current), 2));
-  updateDisplay();
-}
+function calculate() {
+  if (!expression) return;
+  // evita fim com operador
+  if (/[+\-−×÷.]$/.test(expression)) expression = expression.slice(0, -1);
 
-function inverse() {
-  current = String(1 / parseFloat(current));
-  updateDisplay();
-}
+  const exp = normalizeForEval(expression);
 
-// Eventos
-document.querySelectorAll("button").forEach(btn => {
-  btn.addEventListener("click", () => {
-    const num = btn.dataset.number;
-    const op = btn.dataset.operator;
-    const action = btn.dataset.action;
-    const func = btn.dataset.func;
+  // valida somente números, operadores e ponto
+  if (!/^[\d+\-*/. ()]+$/.test(exp)) return;
 
-    if (num) appendNumber(num);
-    if (op) setOperator(op);
-
-    switch (action) {
-      case "clear": clearAll(); break;
-      case "delete": deleteOne(); break;
-      case "equals": evaluate(); break;
-      case "percent": percent(); break;
-      case "sign": toggleSign(); break;
+  try {
+    // avalia com Function de forma controlada
+    // eslint-disable-next-line no-new-func
+    const result = Function(`"use strict"; return (${exp});`)();
+    if (typeof result === "number" && isFinite(result)) {
+      const out = Number(result.toPrecision(12)) + ""; // reduz ruído de ponto flutuante
+      historyEl.textContent = expression + " =";
+      resultEl.value = out;
+      expression = out;
+      lastResult = out;
     }
+  } catch (e) {
+    historyEl.textContent = "Erro de expressão";
+  }
+}
 
-    switch (func) {
-      case "sqrt": sqrt(); break;
-      case "pow": pow(); break;
-      case "inverse": inverse(); break;
-    }
-  });
+/* Clique dos botões */
+keys.addEventListener("click", (e) => {
+  const btn = e.target.closest("button");
+  if (!btn) return;
+
+  const val = btn.getAttribute("data-value");
+  const action = btn.getAttribute("data-action");
+
+  if (val) {
+    if (val === "%") return percent();
+    appendValue(val);
+  } else if (action) {
+    if (action === "clear") clearAll();
+    if (action === "del") delOne();
+    if (action === "invert") invertSign();
+    if (action === "equals") calculate();
+  }
 });
 
-updateDisplay();
+/* Suporte ao teclado */
+window.addEventListener("keydown", (e) => {
+  const k = e.key;
+
+  if (/\d/.test(k)) appendValue(k);
+  else if (k === "." || k === ",") appendValue(".");
+  else if (k === "+" ) appendValue("+");
+  else if (k === "-" ) appendValue("−");
+  else if (k === "*" ) appendValue("×");
+  else if (k === "/" ) appendValue("÷");
+  else if (k === "Enter" || k === "=") { e.preventDefault(); calculate(); }
+  else if (k === "Backspace") delOne();
+  else if (k === "Escape") clearAll();
+  else if (k === "%") percent();
+});
