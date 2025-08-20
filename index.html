@@ -1,1 +1,88 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calculadora — Super Blaster Master</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="calc" id="calc">
+    <div class="topbar">
+      <span class="chip">Super Blaster Master ⚡</span>
+      <span class="chip">Histórico ⎙</span>
+      <div class="grow"></div>
+      <button class="toggle" id="themeBtn" aria-label="Alternar tema" title="Alternar tema (T)">🌙 <span class="kbd">T</span></button>
+      <button class="toggle" id="soundBtn" aria-label="Som" title="Som (S)">🔈 <span class="kbd">S</span></button>
+    </div>
+
+    <div class="display" role="status" aria-live="polite">
+      <div class="history" id="history"></div>
+      <div class="output" id="output">0</div>
+    </div>
+
+    <div class="grid" role="group" aria-label="Teclado da calculadora">
+      <button class="key danger" data-act="clear-all" title="Limpar tudo (Esc)">AC</button>
+      <button class="key danger" data-act="clear-entry" title="Limpar entrada (Delete)">CE</button>
+      <button class="key" data-act="backspace" title="Apagar (Backspace)">⌫</button>
+      <button class="key op" data-val="/" title="Dividir (/)">÷</button>
+
+      <button class="key" data-act="sqrt" title="Raiz (R)">√</button>
+      <button class="key" data-act="percent" title="Percentual (%)">%</button>
+      <button class="key" data-act="recip" title="Inverso (I)">1/x</button>
+      <button class="key op" data-val="*" title="Multiplicar (*)">×</button>
+
+      <button class="key" data-val="7">7</button>
+      <button class="key" data-val="8">8</button>
+      <button class="key" data-val="9">9</button>
+      <button class="key op" data-val="-" title="Subtrair (-)">−</button>
+
+      <button class="key" data-val="4">4</button>
+      <button class="key" data-val="5">5</button>
+      <button class="key" data-val="6">6</button>
+      <button class="key op" data-val="+" title="Somar (+)">+</button>
+
+      <button class="key" data-val="1">1</button>
+      <button class="key" data-val="2">2</button>
+      <button class="key" data-val="3">3</button>
+      <button class="key eq" data-act="equals" title="Igual (= ou Enter)">=</button>
+
+      <button class="key span-2" data-val="0">0</button>
+      <button class="key" data-val="," title="Vírgula decimal (.)">,</button>
+      <button class="key" data-act="sign" title="Trocar sinal (F)">±</button>
+    </div>
+
+    <div class="tape" id="tape" aria-label="Histórico de operações">
+      <h4>Histórico</h4>
+      <div id="tapeItems" role="list"></div>
+    </div>
+
+    <div class="foot">
+      <span class="dot" aria-hidden="true"></span>
+      <span>Suporta teclado: números, + − × ÷, Enter, Esc, Backspace.</span>
+      <div class="right">
+        <span class="kbd">MC</span>
+        <span class="kbd">MR</span>
+        <span class="kbd">M+</span>
+        <span class="kbd">M−</span>
+      </div>
+    </div>
+  </div>
+
+  <audio id="clickSnd" preload="auto">
+    <source src="data:audio/mp3;base64,//uQZAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAACcQCAgICAgICAgP//AACAgICAgICAgICAgICAgICAgICAgICAgICAgICA" type="audio/mp3">
+  </audio>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
+
+/* style.css */
+/* (Aqui entra todo o CSS que estava dentro da tag <style> no código anterior) */
+
+
+// script.js
+// (Aqui entra todo o código JavaScript que estava dentro da tag <script> no código anterior)
 
