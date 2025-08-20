@@ -3,35 +3,55 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calculadora</title>
+  <title>Calculadora Verde</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="calculator">
     <div class="display">
-      <div id="previous-operand" class="previous-operand"></div>
-      <div id="current-operand" class="current-operand">0</div>
+      <div id="history" class="history"></div>
+      <div id="result" class="result">0</div>
     </div>
+
     <div class="buttons">
-      <button data-action="clear" class="span-2 func">AC</button>
-      <button data-action="delete" class="func">DEL</button>
-      <button data-op="÷" class="op">÷</button>
+      <!-- Linha 1 -->
+      <button data-action="clear">C</button>
+      <button data-action="delete">DEL</button>
+      <button data-action="percent">%</button>
+      <button data-operator="/">÷</button>
 
-      <button data-num="7">7</button>
-      <button data-num="8">8</button>
-      <button data-num="9">9</button>
-      <button data-op="×" class="op">×</button>
+      <!-- Linha 2 -->
+      <button data-number="7">7</button>
+      <button data-number="8">8</button>
+      <button data-number="9">9</button>
+      <button data-operator="*">×</button>
 
-      <button data-num="4">4</button>
-      <button data-num="5">5</button>
-      <button data-num="6">6</button>
-      <button data-op="−" class="op">−</button>
+      <!-- Linha 3 -->
+      <button data-number="4">4</button>
+      <button data-number="5">5</button>
+      <button data-number="6">6</button>
+      <button data-operator="-">−</button>
 
-      <button data-num="1">1</button>
-      <button data-num="2">2</button>
-      <button data-num="3">3</button>
-      <button data-op="+" class="op">+</button>
+      <!-- Linha 4 -->
+      <button data-number="1">1</button>
+      <button data-number="2">2</button>
+      <button data-number="3">3</button>
+      <button data-operator="+">+</button>
 
-      <button data-num="0" class="span-2">0</button>
-      <button data-num=".">.</button>
-      <button data-action="equals" class="eq">=</but
+      <!-- Linha 5 -->
+      <button data-number="0" class="zero">0</button>
+      <button data-number=".">.</button>
+      <button data-action="equals">=</button>
+    </div>
+
+    <div class="extras">
+      <button data-func="sqrt">√</button>
+      <button data-func="pow">x²</button>
+      <button data-func="inverse">1/x</button>
+      <button data-action="sign">±</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
