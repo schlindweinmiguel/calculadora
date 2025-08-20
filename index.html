@@ -1,57 +1,63 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calculadora Verde</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <div class="calculator">
-    <div class="display">
-      <div id="history" class="history"></div>
-      <div id="result" class="result">0</div>
-    </div>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Calculadora</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="app">
+      <h1 class="sr-only">Calculadora</h1>
 
-    <div class="buttons">
-      <!-- Linha 1 -->
-      <button data-action="clear">C</button>
-      <button data-action="delete">DEL</button>
-      <button data-action="percent">%</button>
-      <button data-operator="/">÷</button>
+      <div class="calc" role="application" aria-label="Calculadora">
+        <div class="display" aria-live="polite">
+          <div class="history" id="history"></div>
+          <input
+            id="result"
+            class="result"
+            type="text"
+            inputmode="decimal"
+            autocomplete="off"
+            aria-label="Visor da calculadora"
+            readonly
+            value="0"
+          />
+        </div>
 
-      <!-- Linha 2 -->
-      <button data-number="7">7</button>
-      <button data-number="8">8</button>
-      <button data-number="9">9</button>
-      <button data-operator="*">×</button>
+        <div class="keys" role="group" aria-label="Teclas">
+          <button data-action="clear" class="key key--util">AC</button>
+          <button data-action="del" class="key key--util">DEL</button>
+          <button data-value="%" class="key key--op">%</button>
+          <button data-value="÷" class="key key--op">÷</button>
 
-      <!-- Linha 3 -->
-      <button data-number="4">4</button>
-      <button data-number="5">5</button>
-      <button data-number="6">6</button>
-      <button data-operator="-">−</button>
+          <button data-value="7" class="key">7</button>
+          <button data-value="8" class="key">8</button>
+          <button data-value="9" class="key">9</button>
+          <button data-value="×" class="key key--op">×</button>
 
-      <!-- Linha 4 -->
-      <button data-number="1">1</button>
-      <button data-number="2">2</button>
-      <button data-number="3">3</button>
-      <button data-operator="+">+</button>
+          <button data-value="4" class="key">4</button>
+          <button data-value="5" class="key">5</button>
+          <button data-value="6" class="key">6</button>
+          <button data-value="−" class="key key--op">−</button>
 
-      <!-- Linha 5 -->
-      <button data-number="0" class="zero">0</button>
-      <button data-number=".">.</button>
-      <button data-action="equals">=</button>
-    </div>
+          <button data-value="1" class="key">1</button>
+          <button data-value="2" class="key">2</button>
+          <button data-value="3" class="key">3</button>
+          <button data-value="+" class="key key--op">+</button>
 
-    <div class="extras">
-      <button data-func="sqrt">√</button>
-      <button data-func="pow">x²</button>
-      <button data-func="inverse">1/x</button>
-      <button data-action="sign">±</button>
-    </div>
-  </div>
+          <button data-action="invert" class="key">±</button>
+          <button data-value="0" class="key">0</button>
+          <button data-value="." class="key">,</button>
+          <button data-action="equals" class="key key--equals">=</button>
+        </div>
+      </div>
 
-  <script src="script.js"></script>
-</body>
+      <footer class="footer">
+        <span>Feito com HTML • CSS • JS</span>
+      </footer>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
 </html>
