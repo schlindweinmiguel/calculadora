@@ -1,172 +1,168 @@
-// Aqui está TODO o JavaScript que estava na tag <script>
-(function(){
-  const el = s => document.querySelector(s);
-  const output = el('#output');
-  const historyEl = el('#history');
-  const tapeItems = el('#tapeItems');
-  const clickSnd = el('#clickSnd');
+const prevOp = document.getElementById('prevOp');
+const currOp = document.getElementById('currOp');
+const keys = document.getElementById('keys');
 
-  let current = '0';
-  let expr = '';
-  let justEvaluated = false;
-  let mem = 0;
+const state = {
+  current: '0',
+  previous: '',
+  operation: null,
+  justComputed: false
+};
 
-  const fmt = n => {
-    if (!isFinite(n)) return 'Erro';
-    const str = Number(n).toPrecision(12);
-    const cleaned = (+str).toString();
-    return cleaned.length > 18 ? Number(n).toExponential(8) : cleaned;
-  };
+function formatNumber(nStr){
+  // Mantém vírgula como separador decimal visual? Vamos exibir com ponto para cálculo e mostrar com vírgula.
+  const [intPart, decPart] = nStr.split('.');
+  const intFmt = Number(intPart.replace(/\D/g, '') || 0).toLocaleString('pt-BR');
+  return decPart != null ? `${intFmt},${decPart}` : intFmt;
+}
 
-  let soundOn = false;
-  el('#soundBtn').addEventListener('click', () => {
-    soundOn = !soundOn;
-    el('#soundBtn').textContent = soundOn ? '🔊' : '🔈';
-    play();
-  });
+function display(){
+  // Exibe previous (ex: "12 +") e current formatado
+  prevOp.textContent = state.previous ? `${state.previous.replace('.', ',')} ${state.operation || ''}` : '';
+  // Para o current usamos formatNumber mas preservando decimais digitados
+  let c = state.current;
+  if (c === '-') { currOp.textContent = '-'; return; }
+  if (c.includes('e')) { currOp.textContent = c.replace('.', ','); return; } // números muito grandes
+  const parts = c.split('.');
+  const intFmt = Number((parts[0] || '0')).toLocaleString('pt-BR');
+  currOp.textContent = parts[1] != null ? `${intFmt},${parts[1]}` : intFmt;
+}
 
-  const root = document.documentElement;
-  let light = false;
-  el('#themeBtn').addEventListener('click', () => {
-    light = !light; document.body.classList.toggle('light', light);
-    el('#themeBtn').textContent = light ? '☀️' : '🌙';
-    play();
-  });
+function clearAll(){
+  state.current = '0';
+  state.previous = '';
+  state.operation = null;
+  state.justComputed = false;
+  display();
+}
 
-  function play(){
-    if (soundOn) { try { clickSnd.currentTime = 0; clickSnd.play(); } catch(e){} }
+function delChar(){
+  if (state.justComputed){ // após igual, DEL limpa
+    clearAll();
+    return;
+  }
+  if (state.current.length <= 1 || (state.current.length === 2 && state.current.startsWith('-'))){
+    state.current = '0';
+  } else {
+    state.current = state.current.slice(0, -1);
+  }
+  display();
+}
+
+function appendDigit(d){
+  if (d === '.'){
+    if (state.current.includes('.')) return;
+    state.current += '.';
+    state.justComputed = false;
+    display();
+    return;
+  }
+  if (state.justComputed){
+    state.current = d;
+    state.justComputed = false;
+    display();
+    return;
+  }
+  if (state.current === '0'){
+    state.current = d;
+  } else if (state.current === '-0'){
+    state.current = '-' + d;
+  } else {
+    state.current += d;
+  }
+  display();
+}
+
+function chooseOp(op){
+  if (state.operation && !state.justComputed){
+    compute(); // encadeia
+  }
+  state.previous = state.current;
+  state.current = '0';
+  state.operation = op;
+  state.justComputed = false;
+  display();
+}
+
+function safeNumber(s){
+  // Trata fim com ponto ou apenas "-"
+  if (s === '-' || s === '-0' || s === '.') return 0;
+  return Number(s);
+}
+
+function compute(){
+  if (!state.operation || state.previous === '') return;
+  const a = safeNumber(state.previous);
+  const b = safeNumber(state.current);
+
+  let res;
+  switch (state.operation){
+    case '+': res = a + b; break;
+    case '−': res = a - b; break;
+    case '×': res = a * b; break;
+    case '÷': res = b === 0 ? NaN : a / b; break;
+    default: return;
   }
 
-  function setDisplay(val){
-    current = val;
-    output.textContent = val.replace('.', ',');
-  }
+  // Limita precisão para evitar 0.30000000004
+  res = Number.isFinite(res) ? Number(res.toPrecision(12)) : res;
 
-  function appendDigit(d){
-    if (justEvaluated){ expr=''; justEvaluated=false; }
-    if (current === '0' && d !== ',') current = '';
-    if (d === ','){
-      if (current.includes('.')) return;
-      if (current === '') current = '0';
-      current += '.';
+  state.current = String(res);
+  state.previous = '';
+  state.operation = null;
+  state.justComputed = true;
+  display();
+}
+
+function toggleSign(){
+  if (state.current.startsWith('-')){
+    state.current = state.current.slice(1);
+  } else {
+    state.current = state.current === '0' ? '-0' : '-' + state.current;
+  }
+  display();
+}
+
+function percent(){
+  // comportamento comum: aplica % no número atual (divide por 100);
+  // se houver operação e previous, usa previous * (current/100) para +,−; e current/100 para ×,÷ (comum em várias calculadoras)
+  if (state.operation && state.previous !== ''){
+    const a = safeNumber(state.previous);
+    const b = safeNumber(state.current);
+    let p;
+    if (state.operation === '+' || state.operation === '−'){
+      p = (a * b) / 100;
     } else {
-      current += d;
+      p = b / 100;
     }
-    setDisplay(current);
+    state.current = String(Number(p.toPrecision(12)));
+  } else {
+    const v = safeNumber(state.current) / 100;
+    state.current = String(Number(v.toPrecision(12)));
   }
+  display();
+}
 
-  function applyOp(op){
-    if (current !== ''){ expr += current; current = ''; }
-    expr = expr.replace(/[+\\-*/]$/, '');
-    expr += op;
-    historyEl.textContent = expr.replaceAll('*','×').replaceAll('/', '÷');
-    justEvaluated = false;
-    play();
+keys.addEventListener('click', (e)=>{
+  const btn = e.target.closest('button');
+  if (!btn) return;
+
+  const num = btn.getAttribute('data-num');
+  const op = btn.getAttribute('data-op');
+  const action = btn.getAttribute('data-action');
+
+  if (num != null){
+    appendDigit(num);
+  } else if (op){
+    chooseOp(op);
+  } else if (action){
+    if (action === 'equals') compute();
+    else if (action === 'clear') clearAll();
+    else if (action === 'delete') delChar();
+    else if (action === 'sign') toggleSign();
+    else if (action === 'percent') percent();
   }
+});
 
-  function backspace(){
-    if (justEvaluated) return;
-    if (current){
-      if (current.length <= 1 || (current.length === 2 && current.startsWith('-'))){ setDisplay('0'); current=''; }
-      else setDisplay(current.slice(0, -1));
-    }
-    play();
-  }
-
-  function clearAll(){ current='0'; expr=''; setDisplay('0'); historyEl.textContent=''; justEvaluated=false; play(); }
-  function clearEntry(){ current='0'; setDisplay('0'); play(); }
-
-  function sign(){
-    if (!current || current==='0') return;
-    if (current.startsWith('-')) setDisplay(current.slice(1));
-    else setDisplay('-'+current);
-    play();
-  }
-
-  function sqrt(){
-    const n = parseFloat(current || '0');
-    if (n < 0) { setDisplay('Erro'); current=''; return; }
-    setDisplay(fmt(Math.sqrt(n)).toString());
-    justEvaluated=false; play();
-  }
-
-  function recip(){
-    const n = parseFloat(current || '0');
-    if (n === 0){ setDisplay('Erro'); current=''; return; }
-    setDisplay(fmt(1/n).toString());
-    play();
-  }
-
-  function percent(){
-    const base = evalSafe(expr.replace(/[+\\-*/]$/, '')) || 0;
-    const n = parseFloat(current || '0');
-    const p = base * (n/100);
-    setDisplay(fmt(p).toString());
-    play();
-  }
-
-  function evalSafe(fullExpr){
-    if (!fullExpr) return 0;
-    try{ return Function('return ('+fullExpr+')')(); }
-    catch(e){ return NaN; }
-  }
-
-  function equals(){
-    if (current !== ''){ expr += current; current=''; }
-    expr = expr.replace(/[+\\-*/]$/, '');
-    const val = evalSafe(expr);
-    const res = fmt(val);
-    setDisplay(String(res));
-    addTape(expr, res);
-    historyEl.textContent = '';
-    expr = '';
-    justEvaluated = true;
-    play();
-  }
-
-  function addTape(e, r){
-    const row = document.createElement('div');
-    row.className = 'item';
-    row.innerHTML = `<span>${e.replaceAll('*','×').replaceAll('/', '÷')}</span><strong>${r}</strong>`;
-    row.addEventListener('click', ()=>{ setDisplay(String(r)); justEvaluated=false; });
-    tapeItems.prepend(row);
-  }
-
-  document.querySelectorAll('button.key').forEach(b=>{
-    b.addEventListener('click', ()=>{
-      const v = b.getAttribute('data-val');
-      const act = b.getAttribute('data-act');
-      if (v !== null){ appendDigit(v); return; }
-      switch(act){
-        case 'equals': return equals();
-        case 'backspace': return backspace();
-        case 'clear-all': return clearAll();
-        case 'clear-entry': return clearEntry();
-        case 'sqrt': return sqrt();
-        case 'percent': return percent();
-        case 'recip': return recip();
-        case 'sign': return sign();
-      }
-    })
-  });
-
-  window.addEventListener('keydown', (e)=>{
-    const k = e.key;
-    if (/^\\d$/.test(k)) return appendDigit(k);
-    if (k === '.' || k === ',') return appendDigit(',');
-    if (['+','-','*','/'].includes(k)) return applyOp(k);
-    if (k === 'Enter' || k === '=') return equals();
-    if (k === 'Backspace') return backspace();
-    if (k === 'Escape') return clearAll();
-    if (k === 'Delete') return clearEntry();
-    if (k.toLowerCase() === 'r') return sqrt();
-    if (k.toLowerCase() === 'i') return recip();
-    if (k === '%') return percent();
-    if (k.toLowerCase() === 'f') return sign();
-    if (k.toLowerCase() === 't') el('#themeBtn').click();
-    if (k.toLowerCase() === 's') el('#soundBtn').click();
-  });
-
-  setDisplay('0');
-})();
-
+// Suporte ao teclado
+window.addEventListener('keydown', (e)
