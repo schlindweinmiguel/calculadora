@@ -1,92 +1,120 @@
-const prevEl = document.getElementById("previous-operand");
-const currEl = document.getElementById("current-operand");
-const buttons = document.querySelectorAll("button");
+const resultEl = document.getElementById("result");
+const historyEl = document.getElementById("history");
 
-let currentOperand = "0";
-let previousOperand = "";
-let operation = null;
+let current = "0";
+let expression = "";
+let justEvaluated = false;
 
 function updateDisplay() {
-  currEl.textContent = currentOperand;
-  prevEl.textContent = operation ? `${previousOperand} ${operation}` : "";
+  resultEl.textContent = current;
+  historyEl.textContent = expression;
 }
 
-function clear() {
-  currentOperand = "0";
-  previousOperand = "";
-  operation = null;
-  updateDisplay();
-}
-
-function deleteDigit() {
-  if (currentOperand.length === 1 || currentOperand === "Erro") {
-    currentOperand = "0";
+function appendNumber(num) {
+  if (justEvaluated) {
+    current = "0";
+    expression = "";
+    justEvaluated = false;
+  }
+  if (num === "." && current.includes(".")) return;
+  if (current === "0" && num !== ".") {
+    current = num;
   } else {
-    currentOperand = currentOperand.slice(0, -1);
+    current += num;
   }
   updateDisplay();
 }
 
-function appendNumber(number) {
-  if (number === "." && currentOperand.includes(".")) return;
-  if (currentOperand === "0" && number !== ".") {
-    currentOperand = number;
+function setOperator(op) {
+  if (justEvaluated) {
+    expression = current;
+    justEvaluated = false;
   } else {
-    currentOperand += number;
+    expression += current;
   }
+  expression += " " + op + " ";
+  current = "0";
   updateDisplay();
 }
 
-function chooseOperation(op) {
-  if (currentOperand === "Erro") return;
-  if (previousOperand !== "") compute();
-  operation = op;
-  previousOperand = currentOperand;
-  currentOperand = "0";
+function clearAll() {
+  current = "0";
+  expression = "";
+  justEvaluated = false;
   updateDisplay();
 }
 
-function compute() {
-  let result;
-  const prev = parseFloat(previousOperand);
-  const curr = parseFloat(currentOperand);
-  if (isNaN(prev) || isNaN(curr)) return;
+function deleteOne() {
+  if (justEvaluated) return;
+  if (current.length <= 1) current = "0";
+  else current = current.slice(0, -1);
+  updateDisplay();
+}
 
-  switch (operation) {
-    case "+":
-      result = prev + curr;
-      break;
-    case "−":
-      result = prev - curr;
-      break;
-    case "×":
-      result = prev * curr;
-      break;
-    case "÷":
-      result = curr === 0 ? "Erro" : prev / curr;
-      break;
-    default:
-      return;
+function evaluate() {
+  try {
+    let exp = expression + current;
+    let res = Function("return " + exp)();
+    expression = exp + " =";
+    current = String(res);
+    justEvaluated = true;
+    updateDisplay();
+  } catch {
+    current = "Erro";
+    expression = "";
+    justEvaluated = true;
+    updateDisplay();
   }
+}
 
-  currentOperand = result.toString();
-  operation = null;
-  previousOperand = "";
+function percent() {
+  current = String(parseFloat(current) / 100);
   updateDisplay();
 }
 
-buttons.forEach(btn => {
+function toggleSign() {
+  current = current.startsWith("-") ? current.slice(1) : "-" + current;
+  updateDisplay();
+}
+
+function sqrt() {
+  current = String(Math.sqrt(parseFloat(current)));
+  updateDisplay();
+}
+
+function pow() {
+  current = String(Math.pow(parseFloat(current), 2));
+  updateDisplay();
+}
+
+function inverse() {
+  current = String(1 / parseFloat(current));
+  updateDisplay();
+}
+
+// Eventos
+document.querySelectorAll("button").forEach(btn => {
   btn.addEventListener("click", () => {
-    if (btn.dataset.num !== undefined) {
-      appendNumber(btn.dataset.num);
-    } else if (btn.dataset.op !== undefined) {
-      chooseOperation(btn.dataset.op);
-    } else if (btn.dataset.action === "equals") {
-      compute();
-    } else if (btn.dataset.action === "clear") {
-      clear();
-    } else if (btn.dataset.action === "delete") {
-      deleteDigit();
+    const num = btn.dataset.number;
+    const op = btn.dataset.operator;
+    const action = btn.dataset.action;
+    const func = btn.dataset.func;
+
+    if (num) appendNumber(num);
+    if (op) setOperator(op);
+
+    switch (action) {
+      case "clear": clearAll(); break;
+      case "delete": deleteOne(); break;
+      case "equals": evaluate(); break;
+      case "percent": percent(); break;
+      case "sign": toggleSign(); break;
+    }
+
+    switch (func) {
+      case "sqrt": sqrt(); break;
+      case "pow": pow(); break;
+      case "inverse": inverse(); break;
     }
   });
 });
